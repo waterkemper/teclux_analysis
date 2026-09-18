@@ -84,6 +84,13 @@ _Avoid_: cadastro, alteração
 Modificação dos dados de um registro existente sem substituir sua identidade.
 _Avoid_: inclusão, substituição
 
+**Consulta Operacional de Recebimentos**:
+Visão filtrável dos Recebimentos existentes que permite consultar e executar Alterações autorizadas sobre seus fatos financeiros, preservando a identidade de cada Recebimento. Não é um Cadastro e não realiza Inclusão ou Exclusão.
+_Avoid_: cadastro de recebimentos, listagem somente leitura, inclusão de pagamento
+
+**Alteração de Recebimento**:
+Modificação autorizada de um Recebimento existente pela Consulta Operacional de Recebimentos, sem criar ou remover sua identidade; seus efeitos financeiros devem ser tratados como uma transição atômica e auditável.
+_Avoid_: inclusão de pagamento, exclusão de recebimento, edição livre de qualquer campo
 **Exclusão**:
 Remoção definitiva de um registro de um Cadastro.
 _Avoid_: inativação, cancelamento
@@ -211,6 +218,114 @@ _Avoid_: conferência de cadastro, inventário, contagem de estoque
 **Característica de Produto**:
 Agrupamento que compartilha propriedades entre Produtos relacionados.
 _Avoid_: produto, SKU
+
+**Inventário**:
+Cadastro agregado que representa a conferência de estoque de uma Filial. Possui número próprio, data, Situação e uma coleção de Itens de Inventário; sua identidade permanece a mesma durante a conferência e o processamento.
+_Avoid_: relatório de estoque, consulta operacional, movimento de estoque
+
+**Item de Inventário**:
+Filho de um Inventário que registra a contagem de um Produto e, quando aplicável, de seu Lote, incluindo os dados necessários para conferir o saldo da Filial.
+_Avoid_: movimento de estoque, produto isolado, linha visual sem identidade
+
+**Processamento de Inventário**:
+Operação autorizada que encerra a conferência de um Inventário e materializa suas diferenças como efeitos de estoque e Movimentos de Estoque. Não é uma Alteração livre dos movimentos resultantes.
+_Avoid_: edição de movimento, relatório, gravação parcial
+
+**Situação do Inventário**:
+Condição do Inventário que determina suas transições e operações permitidas. Nesta migração, A significa aberto e editável, P significa processado e T significa transferido, conforme a evidência funcional capturada.
+_Avoid_: status técnico, situação universal sem entidade
+
+**Edição do Inventário em Situação Aberta**:
+Enquanto o Inventário estiver em Situação A, sua Filial, suas datas e seus Itens de Inventário permanecem editáveis conforme as validações do Cadastro. Em Situação P ou T, o Inventário e seus itens ficam somente leitura.
+_Avoid_: bloqueio antecipado por possuir itens, edição de inventário processado
+
+**Geração de Itens de Inventário**:
+Operação que aplica os filtros do Inventário para acrescentar Produtos ainda não presentes na conferência, preservando os itens existentes e evitando duplicidades. A geração não substitui silenciosamente a lista nem altera a identidade do Inventário.
+_Avoid_: substituir inventário, duplicar item, consulta sem efeito persistente
+
+**Edição de Item de Inventário**:
+Alteração feita em modal próprio enquanto o Inventário está aberto, com quantidade inventariada editável e, para Produto controlado por Lote, lotes incluídos ou excluídos por comandos próprios cuja soma deve fechar com a quantidade do item. O grid principal é uma visão de seleção, não um editor de células.
+_Avoid_: edição direta de movimento, soma divergente de lotes, grid principal como fonte única de validação
+
+**Processamento de Inventário**:
+Operação F8, distinta de consulta e relatório, que valida o Inventário aberto, exige a autorização contextual de Gerente de Estoque e materializa diferenças como movimentos IE+, IE-, IR- e IP- em uma unidade atômica. Falha ou inconsistência mantém o Inventário em A; sucesso completo muda-o para P.
+_Avoid_: processar por F6, editar movimentos resultantes, publicar situação P antes do commit
+
+**Geração de Relatório do Inventário**:
+Geração acionada por F6 no Laravel que preserva o conteúdo, os critérios e o leiaute de saída observados no relatório Delphi, disponibilizando o resultado também no grid equivalente e permitindo cancelamento enquanto a consulta estiver em execução.
+_Avoid_: usar F7 como gatilho no Laravel, relatório sem grid equivalente, consulta não cancelável
+
+**Autorização de Inventário**:
+Permissão que controla consulta, inclusão, alteração, exclusão e geração de itens do Cadastro de Inventário, complementada por autorização contextual de Gerente de Estoque para o Processamento de Inventário. Não introduz senha adicional quando ela não fizer parte do comportamento Delphi; as decisões e o processamento devem ser auditáveis.
+_Avoid_: exigir senha nova sem precedente, tratar autorização de processamento como simples visibilidade de botão, permitir processamento sem contexto de gerente
+
+**Concorrência de Inventário**:
+Controle que preserva a experiência de edição do Delphi, mas valida a Situação e a versão do Inventário dentro da transação de gravação ou processamento. Se outro Usuário alterou o registro, a operação é rejeitada como conflito e não sobrescreve silenciosamente os dados.
+_Avoid_: lost update, confiar apenas no estado carregado na tela, publicar processamento sobre versão antiga
+
+**Fronteira entre Inventário e Estoque**:
+O Inventário mantém a conferência, os critérios e a intenção de processamento. Saldos, reservas, lotes e Movimentos de Estoque são consultados e materializados pelos serviços e regras compartilhados do domínio de estoque, sem edição direta de movimentos nem duplicação de sua lógica no cadastro.
+_Avoid_: inventário como dono do saldo, regra de estoque duplicada, alteração direta de movimento
+
+**Grid do Inventário**:
+Visão de consulta e seleção do Inventário, sem edição direta de células. A edição de itens e lotes ocorre em modal próprio; o grid oferece ordenação, filtros, exportação, personalização e preferências persistidas no padrão Laravel, e a Geração de Relatório do Inventário apresenta o mesmo leiaute e conjunto de dados.
+_Avoid_: grid como editor de domínio, relatório com leiaute divergente, exportação artesanal sem preferências
+
+**Schema Autoritativo do Inventário**:
+Snapshot versionado da base legada que comprova tabelas, colunas, tipos, nulabilidade, chaves, relações, índices, funções e sequences usados pelo Inventário. Enquanto relações necessárias estiverem ausentes do snapshot, o prompt pode documentar o bloqueio, mas não pode autorizar SQL final nem inventar nomes de objetos.
+_Avoid_: tratar snapshot parcial como schema completo, inventar tabela/coluna, finalizar SQL sem comprovação
+
+**Sessão de Coleta Mobile**:
+Unidade operacional separada, vinculada a um Inventário aberto, que registra bipagens e seus metadados de coleta em celular ou tablet para posterior sincronização com os Itens de Inventário. Não publica o Inventário como processado nem edita diretamente Movimentos de Estoque.
+_Avoid_: coleta como processamento, bipagem sem rastreabilidade, sessão sem Inventário pai
+
+**Coleta Mobile Offline-Tolerante**:
+Modo da Sessão de Coleta Mobile que registra eventos localmente com identificador idempotente quando a conexão falha, sincroniza automaticamente ao retornar a conectividade, expõe pendências/conflitos e não permite concluir nem processar o Inventário enquanto houver eventos não sincronizados.
+_Avoid_: descartar bipagem offline, duplicar evento na reconexão, processar com pendência local
+
+**Importação de Coleta**:
+Canal de entrada da Sessão de Coleta Mobile que aceita o arquivo de coletor no formato legado de código e quantidade, normaliza linhas repetidas por soma, resolve o Produto conforme parâmetros autorizados e aplica os mesmos controles de idempotência, auditoria, pendência e sincronização da bipagem.
+_Avoid_: importar fora da sessão, somar sem rastreabilidade, tratar código de barras comentado como regra efetiva
+
+**Entrada Unificada da Coleta**:
+Bipagem por câmera e importação de arquivo são canais equivalentes da mesma Sessão de Coleta Mobile. Ambos validam, deduplicam, auditam e sincronizam eventos antes de alterar os Itens de Inventário; o arquivo processado é arquivado no servidor e não depende de renomeação local.
+_Avoid_: regras divergentes por canal, importação fora da sessão, reprocessamento sem idempotência
+
+**Formato Legado de Coleta**:
+Arquivo de coleta compatível com o Delphi contendo somente `código,quantidade`. Não inclui lote; quando o Produto controla lotes, a distribuição é feita posteriormente na edição do Item de Inventário, com a validação de fechamento já definida.
+_Avoid_: inventar terceira coluna sem versão de formato, perder quantidade por lote, processar lote implicitamente
+
+**Junção de Inventários**:
+Operação distinta da Sessão de Coleta e do Processamento de Inventário que seleciona Inventários abertos da mesma Filial, soma no destino as quantidades de Produtos repetidos, inclui Produtos ausentes e marca as origens como transferidas (`T`) para o Inventário destino.
+_Avoid_: tratar junção como bipagem, processar movimentos na cópia, juntar Inventários de Filiais diferentes
+
+**Junção Administrativa Responsiva**:
+A Junção de Inventários permanece uma operação administrativa do Cadastro, disponível em desktop e tablet responsivo com permissão própria e confirmação explícita, mas não aparece como ação do fluxo rápido de bipagem da Sessão de Coleta Mobile.
+_Avoid_: juntar por acidente durante bipagem, expor operação sem permissão, limitar a junção ao desktop estreito
+
+**Correção Manual na Coleta**:
+Alteração manual da quantidade durante a Sessão de Coleta Mobile, permitida somente em Inventário A, com motivo obrigatório para reduzir ou corrigir, auditoria do valor anterior/novo e identificação de Usuário, dispositivo e horário. Para Produto controlado por Lote, a distribuição continua sujeita ao fechamento da soma dos lotes.
+_Avoid_: correção sem motivo, alterar Inventário fechado, perder auditoria, aceitar soma de lotes divergente
+
+**Identificação Parametrizada da Coleta**:
+A Sessão de Coleta Mobile aplica a mesma estratégia de identificação à câmera e ao arquivo: `PesquisaPadraoProdutoCodigoBarras` define o campo prioritário e `PermitirProdutoAlfanumerico` controla a validade do código. Produto não encontrado gera erro explícito e não cria Item silenciosamente.
+_Avoid_: fallback silencioso entre códigos, parâmetros diferentes por canal, aceitar código inválido
+
+**Leiaute Operacional Mobile da Coleta**:
+Interface mobile-first da Sessão de Coleta Mobile que prioriza câmera e entrada manual alternativa, usa controles grandes, mostra o último Produto, progresso, pendências e conflitos, mantém ações principais acessíveis e adapta o tablet para câmera/lista em duas colunas sem depender de hover, duplo clique ou grid denso.
+_Avoid_: layout desktop reduzido, ação crítica escondida, dependência de hover, grid como tela de bipagem
+
+**Ciclo de Vida da Sessão de Coleta Mobile**:
+Sessão iniciada apenas para Inventário A, pausável e retomável por Usuário autorizado. Sua finalização bloqueia novas bipagens quando não há eventos pendentes ou conflitos, mas mantém o Inventário aberto para conferência; somente o Processamento de Inventário F8 muda a situação para P.
+_Avoid_: finalizar sessão com pendência, bloquear o Inventário antes do F8, processar ao finalizar coleta
+
+**Permissão da Coleta Mobile**:
+Consulta e escopo de Filial seguem o acesso ao Inventário; iniciar, pausar, retomar, bipar e importar exigem permissão de alteração; finalizar a sessão exige permissão própria. A retomada pode ser feita por outro Usuário autorizado, enquanto o F8 continua exigindo autorização contextual de Gerente de Estoque.
+_Avoid_: câmera sem autorização server-side, finalizar com simples acesso de consulta, confundir finalização de sessão com processamento
+
+**Fallback de Captura Mobile**:
+Quando a câmera não estiver disponível ou sua permissão for negada, a Sessão de Coleta Mobile informa o motivo e mantém entrada manual e Importação de Coleta como canais alternativos. Nenhum evento é aceito sem identificação válida e o usuário pode tentar a permissão novamente.
+_Avoid_: bloquear a coleta por câmera indisponível, aceitar evento sem Produto, falhar silenciosamente
 
 **Faixa de Preço**:
 Opção de preço que um Produto seleciona dentro de sua Característica de Produto. Identifica qual conjunto compartilhado de Valores de Preço o Produto utiliza, sem representar por si só um valor monetário ou uma Filial.

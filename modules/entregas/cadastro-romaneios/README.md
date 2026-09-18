@@ -2,7 +2,7 @@
 
 Este pacote agora inclui o prompt 08, separado para corrigir os filtros da inclusao multipla de Notas. Consulte modules/entregas/cadastro-romaneios/08-speckit-prompt-correcao-filtros-inclusao-multipla.md.
 
-Esta pasta contém o pacote de evidências e doze prompts coordenados para especificar no Laravel o módulo **Entregas e Montagens → Entregas → Romaneios**. Os prompts 07–12 são correções posteriores derivadas da validação da implementação contra o fluxo legado já consolidado nas evidências do módulo.
+Esta pasta contém o pacote de evidências e treze prompts coordenados para especificar no Laravel o módulo **Entregas e Montagens → Entregas → Romaneios**. Os prompts 07–13 são correções posteriores derivadas da validação da implementação contra o fluxo legado já consolidado nas evidências do módulo.
 
 ## Ordem de execução
 
@@ -20,6 +20,7 @@ Esta pasta contém o pacote de evidências e doze prompts coordenados para espec
 | 10 | [Auditoria do fluxo Normal/Transferência e situações](10-speckit-prompt-auditoria-fluxo-normal-transferencia-status.md) | fluxo mestre–itens, elegibilidade, conferência de notas/volumes, ROS/RPS/ROE/ROP, estados por tipo, capabilities e comparação pós-implementação |
 | 11 | [Botões e operações por tipo e Situação](11-speckit-prompt-botoes-operacoes-por-status.md) | matriz de visibilidade/habilitação, atalhos, capabilities, ações do mestre/Item, estados N/T e proteção UI/backend |
 | 12 | [Transferência em trânsito sem ações do grid](12-speckit-prompt-correcao-transferencia-em-transito.md) | correção da regra T + EM TRÂNSITO, todos os botões do grid desabilitados, capabilities, atalhos, rotas e handlers |
+| 13 | [Recuperação de Documento a Pagar ausente](13-speckit-prompt-recuperacao-documento-pagar-ausente.md) | invariante financeiro, botão de recuperação, reconciliação, concorrência e rollback sem reabrir ações do grid |
 
 Execute cada bloco com `/speckit.specify` no checkout Laravel alvo. A saída de uma etapa é pré-condição da seguinte; não peça implementação ao comando de especificação. Antes de cada execução, confira se o checkout ainda contém os componentes citados e se o snapshot autoritativo continua representando o banco-alvo.
 

@@ -1,0 +1,411 @@
+{
+    "authority": "authoritative",
+    "captured_at": "2026-09-09T17:06:59-03:00",
+    "database": "santaapolonia",
+    "schema": "public",
+    "database_user": "tecsoft",
+    "server_version": "PostgreSQL 17.4 on x86_64-windows, compiled by msvc-19.42.34436, 64-bit",
+    "server_encoding": "WIN1252",
+    "client_encoding": "WIN1252",
+    "timezone": "America/Sao_Paulo",
+    "collection_mode": "BEGIN; SET TRANSACTION READ ONLY; pg_catalog; ROLLBACK",
+    "requested_relations": [
+        "inventario",
+        "inventarioprodutos",
+        "inventarioprodutoslotes",
+        "produtos",
+        "caracteristicas",
+        "classes",
+        "grupos",
+        "marcas",
+        "promocoes",
+        "filiais",
+        "fornecedoresprodutos",
+        "estoques",
+        "estoqueslotes",
+        "movimentos",
+        "movimentoslotes",
+        "lotes",
+        "grades",
+        "parametros",
+        "parametrosfiliais"
+    ],
+    "requested_functions": [
+        "quantidadetotaldoestoque",
+        "parametros_valor"
+    ],
+    "relations": [
+        {
+            "object_schema": "public",
+            "name": "produtos",
+            "relkind": "r",
+            "kind": "table",
+            "owner": "tecsoft",
+            "estimated_rows": -1,
+            "comment": null,
+            "columns": [
+                {
+                    "ordinal": 1,
+                    "name": "codigo",
+                    "data_type": "bigint",
+                    "not_null": true,
+                    "default_expression": "nextval('produtos_codigo_seq'::regclass)",
+                    "comment": null
+                },
+                {
+                    "ordinal": 2,
+                    "name": "atributos",
+                    "data_type": "bigint",
+                    "not_null": false,
+                    "default_expression": null,
+                    "comment": null
+                }
+            ],
+            "constraints": [
+                {
+                    "name": "produtos_atributos_foreign",
+                    "type": "f",
+                    "definition": "FOREIGN KEY (atributos) REFERENCES atributos_produtos(codigo)",
+                    "validated": true
+                },
+                {
+                    "name": "produtos_pkey",
+                    "type": "p",
+                    "definition": "PRIMARY KEY (codigo)",
+                    "validated": true
+                }
+            ],
+            "indexes": [
+                {
+                    "name": "produtos_pkey",
+                    "primary": true,
+                    "unique": true,
+                    "definition": "CREATE UNIQUE INDEX produtos_pkey ON public.produtos USING btree (codigo)"
+                }
+            ],
+            "triggers": []
+        },
+        {
+            "object_schema": "public",
+            "name": "caracteristicas",
+            "relkind": "r",
+            "kind": "table",
+            "owner": "tecsoft",
+            "estimated_rows": -1,
+            "comment": null,
+            "columns": [
+                {
+                    "ordinal": 1,
+                    "name": "id",
+                    "data_type": "integer",
+                    "not_null": true,
+                    "default_expression": "nextval('caracteristicas_id_seq'::regclass)",
+                    "comment": null
+                },
+                {
+                    "ordinal": 2,
+                    "name": "grade1",
+                    "data_type": "integer",
+                    "not_null": false,
+                    "default_expression": null,
+                    "comment": null
+                },
+                {
+                    "ordinal": 3,
+                    "name": "grade2",
+                    "data_type": "integer",
+                    "not_null": false,
+                    "default_expression": null,
+                    "comment": null
+                }
+            ],
+            "constraints": [
+                {
+                    "name": "caracteristicas_grade1_foreign",
+                    "type": "f",
+                    "definition": "FOREIGN KEY (grade1) REFERENCES grades(codigo)",
+                    "validated": true
+                },
+                {
+                    "name": "caracteristicas_grade2_foreign",
+                    "type": "f",
+                    "definition": "FOREIGN KEY (grade2) REFERENCES grades(codigo)",
+                    "validated": true
+                },
+                {
+                    "name": "caracteristicas_pkey",
+                    "type": "p",
+                    "definition": "PRIMARY KEY (id)",
+                    "validated": true
+                }
+            ],
+            "indexes": [
+                {
+                    "name": "caracteristicas_pkey",
+                    "primary": true,
+                    "unique": true,
+                    "definition": "CREATE UNIQUE INDEX caracteristicas_pkey ON public.caracteristicas USING btree (id)"
+                }
+            ],
+            "triggers": []
+        },
+        {
+            "object_schema": "public",
+            "name": "marcas",
+            "relkind": "r",
+            "kind": "table",
+            "owner": "tecsoft",
+            "estimated_rows": -1,
+            "comment": null,
+            "columns": [
+                {
+                    "ordinal": 1,
+                    "name": "codigo",
+                    "data_type": "smallint",
+                    "not_null": true,
+                    "default_expression": null,
+                    "comment": null
+                },
+                {
+                    "ordinal": 2,
+                    "name": "descricao",
+                    "data_type": "character varying(60)",
+                    "not_null": true,
+                    "default_expression": null,
+                    "comment": null
+                },
+                {
+                    "ordinal": 3,
+                    "name": "inativo",
+                    "data_type": "date",
+                    "not_null": false,
+                    "default_expression": null,
+                    "comment": null
+                },
+                {
+                    "ordinal": 4,
+                    "name": "disponivel_site",
+                    "data_type": "boolean",
+                    "not_null": true,
+                    "default_expression": "false",
+                    "comment": null
+                },
+                {
+                    "ordinal": 5,
+                    "name": "imagem",
+                    "data_type": "character varying(255)",
+                    "not_null": false,
+                    "default_expression": null,
+                    "comment": null
+                },
+                {
+                    "ordinal": 6,
+                    "name": "imagem_t",
+                    "data_type": "character varying(255)",
+                    "not_null": false,
+                    "default_expression": null,
+                    "comment": null
+                },
+                {
+                    "ordinal": 7,
+                    "name": "imagem_m",
+                    "data_type": "character varying(255)",
+                    "not_null": false,
+                    "default_expression": null,
+                    "comment": null
+                },
+                {
+                    "ordinal": 8,
+                    "name": "nome_url",
+                    "data_type": "character varying(200)",
+                    "not_null": false,
+                    "default_expression": null,
+                    "comment": null
+                },
+                {
+                    "ordinal": 9,
+                    "name": "observacoesvenda",
+                    "data_type": "character varying(2000)",
+                    "not_null": false,
+                    "default_expression": null,
+                    "comment": null
+                }
+            ],
+            "constraints": [
+                {
+                    "name": "marcas_descricao_unique",
+                    "type": "u",
+                    "definition": "UNIQUE (descricao)",
+                    "validated": true
+                },
+                {
+                    "name": "marcas_nome_url_unique",
+                    "type": "u",
+                    "definition": "UNIQUE (nome_url)",
+                    "validated": true
+                },
+                {
+                    "name": "marcas_pkey",
+                    "type": "p",
+                    "definition": "PRIMARY KEY (codigo)",
+                    "validated": true
+                }
+            ],
+            "indexes": [
+                {
+                    "name": "marcas_descricao_unique",
+                    "primary": false,
+                    "unique": true,
+                    "definition": "CREATE UNIQUE INDEX marcas_descricao_unique ON public.marcas USING btree (descricao)"
+                },
+                {
+                    "name": "marcas_nome_url_unique",
+                    "primary": false,
+                    "unique": true,
+                    "definition": "CREATE UNIQUE INDEX marcas_nome_url_unique ON public.marcas USING btree (nome_url)"
+                },
+                {
+                    "name": "marcas_pkey",
+                    "primary": true,
+                    "unique": true,
+                    "definition": "CREATE UNIQUE INDEX marcas_pkey ON public.marcas USING btree (codigo)"
+                }
+            ],
+            "triggers": []
+        },
+        {
+            "object_schema": "public",
+            "name": "grades",
+            "relkind": "r",
+            "kind": "table",
+            "owner": "tecsoft",
+            "estimated_rows": -1,
+            "comment": null,
+            "columns": [
+                {
+                    "ordinal": 1,
+                    "name": "codigo",
+                    "data_type": "integer",
+                    "not_null": true,
+                    "default_expression": "nextval('grades_codigo_seq'::regclass)",
+                    "comment": null
+                },
+                {
+                    "ordinal": 2,
+                    "name": "descricao",
+                    "data_type": "character varying(40)",
+                    "not_null": true,
+                    "default_expression": null,
+                    "comment": null
+                },
+                {
+                    "ordinal": 3,
+                    "name": "nome_site",
+                    "data_type": "character varying(40)",
+                    "not_null": false,
+                    "default_expression": null,
+                    "comment": null
+                }
+            ],
+            "constraints": [
+                {
+                    "name": "grades_pkey",
+                    "type": "p",
+                    "definition": "PRIMARY KEY (codigo)",
+                    "validated": true
+                }
+            ],
+            "indexes": [
+                {
+                    "name": "grades_pkey",
+                    "primary": true,
+                    "unique": true,
+                    "definition": "CREATE UNIQUE INDEX grades_pkey ON public.grades USING btree (codigo)"
+                }
+            ],
+            "triggers": []
+        }
+    ],
+    "sequences": [
+        {
+            "object_schema": "public",
+            "name": "chave",
+            "owner": "tecsoft",
+            "owned_by_relation": null,
+            "owned_by_column": null
+        }
+    ],
+    "functions": [
+        {
+            "object_schema": "public",
+            "name": "quantidadetotaldoestoque",
+            "arguments": "integer",
+            "result_type": "numeric",
+            "definition": "CREATE OR REPLACE FUNCTION public.quantidadetotaldoestoque(integer)\n RETURNS numeric\n LANGUAGE plpgsql\nAS $function$\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\nDECLARE                                       -- Retorna a Qtde Total do Estoque\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\n   pNumero  ALIAS FOR $1;                     -- do movimento pNumero\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\n   vTotal   NUMERIC(11,3);\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\nBEGIN\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\n   SELECT EmEstoque + Reservado    +\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\n          Transito  + Demonstracao +\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\n          Conserto  + Danificada   + ReservaPrevia INTO vTotal\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\n      FROM Movimentos\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\n      WHERE Numero = pNumero;\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\n\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\n   RETURN COALESCE(vTotal, 0);\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\nEND;\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\n$function$\n"
+        },
+        {
+            "object_schema": "public",
+            "name": "quantidadetotaldoestoque",
+            "arguments": "bigint",
+            "result_type": "numeric",
+            "definition": "CREATE OR REPLACE FUNCTION public.quantidadetotaldoestoque(bigint)\n RETURNS numeric\n LANGUAGE plpgsql\nAS $function$\r\nDECLARE\r\n   vProduto  ALIAS FOR $1;\r\n   vTotal    NUMERIC(11,3);\r\n\r\nBEGIN\r\n   SELECT sum((EmEstoque + Reservado    +\r\n           Transito  + Demonstracao +\r\n           Conserto  + Danificada   + ReservaPrevia)) INTO vTotal\r\n      FROM Estoques\r\n      WHERE Produto = vProduto;\r\n\r\n   IF vTotal IS NULL\r\n      THEN RETURN 0;\r\n      ELSE RETURN vTotal;\r\n   END IF;\r\nEND;\r\n$function$\n"
+        },
+        {
+            "object_schema": "public",
+            "name": "quantidadetotaldoestoque",
+            "arguments": "bigint, smallint",
+            "result_type": "numeric",
+            "definition": "CREATE OR REPLACE FUNCTION public.quantidadetotaldoestoque(bigint, smallint)\n RETURNS numeric\n LANGUAGE plpgsql\nAS $function$\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\nDECLARE\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\n   vProduto  ALIAS FOR $1;\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\n   vFilial   ALIAS FOR $2;\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\n   vTotal    NUMERIC(11,3);\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\n\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\nBEGIN\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\n   SELECT (EmEstoque + Reservado    +\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\n           Transito  + Demonstracao +\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\n           Conserto  + Danificada   + ReservaPrevia) INTO vTotal\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\n      FROM Estoques\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\n      WHERE Produto = vProduto AND\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\n            Filial  = vFilial;\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\n\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\n   IF vTotal IS NULL\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\n      THEN RETURN 0;\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\n      ELSE RETURN vTotal;\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\n   END IF;\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\nEND;$function$\n"
+        },
+        {
+            "object_schema": "public",
+            "name": "quantidadetotaldoestoque",
+            "arguments": "vproduto bigint, plistafiliais character varying",
+            "result_type": "numeric",
+            "definition": "CREATE OR REPLACE FUNCTION public.quantidadetotaldoestoque(vproduto bigint, plistafiliais character varying)\n RETURNS numeric\n LANGUAGE plpgsql\nAS $function$\r\nDECLARE\r\n/*   vProduto  ALIAS FOR $1;*/\r\n   vTotal    NUMERIC(11,3);\r\n\r\nBEGIN\r\n   SELECT sum((EmEstoque + Reservado    +\r\n           Transito  + Demonstracao +\r\n           Conserto  + Danificada   + ReservaPrevia)) INTO vTotal\r\n      FROM Estoques\r\n      WHERE Produto = vProduto\r\n      \r\n        and case when pListaFiliais<>'' then\r\n                      filial in (select * from lista_int(cast('{'||pListaFiliais||'}' as integer[])))\r\n                 else true     \r\n            end;\r\n\r\n   IF vTotal IS NULL\r\n      THEN RETURN 0;\r\n      ELSE RETURN vTotal;\r\n   END IF;\r\nEND;\r\n$function$\n"
+        },
+        {
+            "object_schema": "public",
+            "name": "parametros_valor",
+            "arguments": "character varying",
+            "result_type": "character varying",
+            "definition": "CREATE OR REPLACE FUNCTION public.parametros_valor(character varying)\n RETURNS character varying\n LANGUAGE plpgsql\nAS $function$\r\r\r\r\r\r\r\r\r\r\nDECLARE -------------------------------------------------------------------------------------- GERAL\r\r\r\r\r\r\r\r\r\r\n  pParametro   ALIAS FOR $1;                              -- Retorna o valor gen�rico de pParametro.\r\r\r\r\r\r\r\r\r\r\n\r\r\r\r\r\r\r\r\r\r\nBEGIN\r\r\r\r\r\r\r\r\r\r\n\r\r\r\r\r\r\r\r\r\r\n  RETURN Parametros_Valor(pParametro, NULL);\r\r\r\r\r\r\r\r\r\r\n\r\r\r\r\r\r\r\r\r\r\nEND;\r\r\r\r\r\r\r\r\r\r\n$function$\n"
+        },
+        {
+            "object_schema": "public",
+            "name": "parametros_valor",
+            "arguments": "character varying, integer",
+            "result_type": "character varying",
+            "definition": "CREATE OR REPLACE FUNCTION public.parametros_valor(character varying, integer)\n RETURNS character varying\n LANGUAGE plpgsql\nAS $function$\r\r\nDECLARE ---------------------------------------------------------------------------------- G E R A L\r\r\n  pParametro   ALIAS FOR $1;       -- Retorna o valor de pParametro em pFilial. Se pFilial for nulo,\r\r\n  pFilial      ALIAS FOR $2;       -- retorna o valor genérico para todas as filiais. Não existindo,\r\r\n                                   -- retorna o string vazio.\r\r\n  vValor       VARCHAR;\r\r\n  vPesquisa    INTEGER;\r\r\n\r\r\nBEGIN\r\r\n\r\r\n  vPesquisa:= COALESCE(pFilial, 0);\r\r\n  SELECT pf.Valor INTO vValor\r\r\n     FROM ParametrosFiliais pf, Parametros p\r\r\n     WHERE pf.Parametro = p.Codigo  AND\r\r\n           pf.Filial    = vPesquisa AND UPPER(TO_ASCII(p.Descricao, 'LATIN1')) =\r\r\n                                        UPPER(TO_ASCII(pParametro,  'LATIN1'));\r\r\n\r\r\n  IF NOT FOUND\r\r\n  THEN SELECT pf.Valor INTO vValor\r\r\n          FROM ParametrosFiliais pf, Parametros p\r\r\n          WHERE pf.Parametro = p.Codigo AND\r\r\n                pf.Filial IS NULL       AND UPPER(TO_ASCII(p.Descricao, 'LATIN1')) =\r\r\n                                            UPPER(TO_ASCII(pParametro,  'LATIN1'));\r\r\n  END IF;\r\r\n\r\r\n  RETURN COALESCE(vValor, '');\r\r\n\r\r\nEND;\r\r\n$function$\n"
+        }
+    ],
+    "missing_relations": [
+        "inventario",
+        "inventarioprodutos",
+        "inventarioprodutoslotes",
+        "classes",
+        "grupos",
+        "promocoes",
+        "filiais",
+        "fornecedoresprodutos",
+        "estoques",
+        "estoqueslotes",
+        "movimentos",
+        "movimentoslotes",
+        "lotes",
+        "parametros",
+        "parametrosfiliais"
+    ],
+    "missing_functions": [],
+    "runtime_rules": [
+        "JSON is a specification and CI gate; business code must not introspect schema.",
+        "Do not use hasTable, Schema::has*, information_schema or pg_catalog in business code.",
+        "Missing objects block SQL specification; divergence requires a new dated capture.",
+        "Choose INNER JOIN or LEFT JOIN from proven nullability, FK, cardinality and semantics.",
+        "Do not reproduce MAX()+1 or sequence-state allocation."
+    ],
+    "limitations": [
+        "reltuples is a structural estimate, not an EXPLAIN or benchmark.",
+        "The capture covers the relations and functions named by the Inventory SQL evidence."
+    ]
+}

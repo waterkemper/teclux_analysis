@@ -1,6 +1,5 @@
 # Prompt 05 — Aceite, desempenho e observabilidade
 
-Execute /speckit.specify para fechar o aceite do pacote Consulta e Agendamento de Entregas no checkout Laravel atual.
 
 ## Matriz funcional
 

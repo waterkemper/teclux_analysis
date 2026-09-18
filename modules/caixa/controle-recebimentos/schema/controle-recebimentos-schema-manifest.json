@@ -1,0 +1,80 @@
+{
+  "authority": "authoritative",
+  "captured_at": "2026-09-01T23:19:07-03:00",
+  "captured_at_utc": "2026-09-02T02:19:07+00:00",
+  "database": "tecsoft",
+  "schema": "public",
+  "database_user": "tecsoft",
+  "server_version": "PostgreSQL 9.5.25",
+  "server_encoding": "SQL_ASCII",
+  "client_encoding": "SQL_ASCII",
+  "timezone": "America/Sao_Paulo",
+  "collection_mode": "BEGIN; SET TRANSACTION READ ONLY; pg_catalog; ROLLBACK",
+  "snapshot": {
+    "file": "postgresql-authoritative-2026-09-01.json",
+    "sha256": "AC9136556EAE72DF6D33A312C3FF58B3A66FC957BEE39AEAA2B6B532758A70AC",
+    "relations": 16,
+    "columns": 798,
+    "constraints": 189,
+    "indexes": 93,
+    "triggers": 66,
+    "sequences": 29,
+    "functions": 44
+  },
+  "required_relations": [
+    "recebimentos",
+    "tiposrecebimentos",
+    "filiais",
+    "cheques",
+    "contastiposrecebimentos",
+    "contratos",
+    "vfornecedores",
+    "parcelas",
+    "autenticacoes",
+    "tef",
+    "documentospag",
+    "duplicatas",
+    "movtosbancos",
+    "movtosbancoseventos",
+    "parametros",
+    "parametrosfiliais"
+  ],
+  "required_functions": [
+    "contratosdatransacao",
+    "orcamentosdatransacao",
+    "recebimentos_proximocodigo",
+    "documentospag_proximonumero",
+    "parametros_valor"
+  ],
+  "missing_relations": [],
+  "missing_functions": [],
+  "coverage": {
+    "direct_sql_relations": "As relações são as tabelas/visões referenciadas pelos SQLs de consulta, auxiliares e persistência extraídos do Delphi.",
+    "trigger_dependencies": "As funções acionadas por triggers não internos das relações capturadas também foram incluídas.",
+    "catalogs": [
+      "pg_catalog.pg_class",
+      "pg_catalog.pg_namespace",
+      "pg_catalog.pg_attribute",
+      "pg_catalog.pg_attrdef",
+      "pg_catalog.pg_constraint",
+      "pg_catalog.pg_index",
+      "pg_catalog.pg_trigger",
+      "pg_catalog.pg_depend",
+      "pg_catalog.pg_proc",
+      "pg_catalog.pg_language"
+    ]
+  },
+  "runtime_rules": [
+    "O JSON é contrato de especificação e gate de CI; request/serviço não deve introspectar schema.",
+    "Não usar hasTable, Schema::has*, information_schema ou pg_catalog em request ou teste condicional de driver.",
+    "Não inventar tabela, coluna, função, constraint ou sequência ausente; uma divergência exige nova captura datada.",
+    "Usar INNER JOIN quando NOT NULL/FK/cardinalidade e semântica obrigatória estiverem comprovados; deixar LEFT JOIN somente para relação opcional comprovada.",
+    "Estado de sequence capturado é somente informativo; não reproduzir MAX()+1 nem alocação concorrente baseada no estado."
+  ],
+  "limitations": [
+    "reltuples é uma estimativa estrutural, não substitui EXPLAIN nem benchmark PostgreSQL.",
+    "O snapshot cobre os objetos diretos da evidência Delphi e dependências de triggers das relações capturadas; não é inventário completo de FKs transitivas.",
+    "O servidor usa SQL_ASCII; bytes inválidos foram substituídos somente na serialização JSON.",
+    "Cardinalidade operacional e plano de execução devem ser validados em testes PostgreSQL durante a implementação."
+  ]
+}

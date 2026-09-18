@@ -10,6 +10,7 @@ Este diretório contém a sequência autoritativa de prompts para especificar, e
 4. 04-speckit-prompt-interface-grids-operacoes.md
 5. 05-speckit-prompt-aceite-testes-observabilidade.md
 6. 06-speckit-prompt-correcao-passagem-laravel.md
+7. 07-speckit-prompt-correcao-previsao-documentospag-romaneio-t.md
 
 ## Pacote autoritativo
 

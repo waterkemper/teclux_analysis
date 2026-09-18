@@ -9,6 +9,8 @@ Este diretório contém o contrato autoritativo para implementar no Laravel a te
 3. [Núcleo transacional e confirmação](03-speckit-prompt-nucleo-transacional-confirmacao.md)
 4. [Lotes e conferência](04-speckit-prompt-lotes-conferencia.md)
 5. [Interface, integração e aceite](05-speckit-prompt-interface-integracao-aceite.md)
+6. [Correções pós-implementação](06-speckit-prompt-correcoes-pos-implementacao.md)
+7. [Quantidade, lotes e confirmação](07-speckit-prompt-quantidades-lotes-confirmacao.md)
 
 Cada prompt é uma entrada independente do `/speckit.specify`, mas deve consumir os anteriores na ordem acima. Não implementar o módulo durante a execução do `/speckit.specify`; produzir especificação, plano, contratos, dependências e critérios de aceite.
 
